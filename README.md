@@ -1,4 +1,4 @@
-# PhishGuard — ML-Based Phishing Email Detection System
+# PhishGuard : ML-Based Phishing Email Detection System
 
 > **97.62% accuracy · ROC-AUC 0.9972 · F1 Score 0.9778**  
 > A full-stack phishing detection system powered by a soft-voting ML ensemble, served through a Flask REST API and integrated directly into Gmail via a Chrome extension.
