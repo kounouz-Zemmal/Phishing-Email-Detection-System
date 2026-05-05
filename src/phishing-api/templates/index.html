@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PhishGuard — Email Threat Intelligence</title>
+    <link rel="icon" href="data:,">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+    <div class="bg-grid"></div>
+    <div class="bg-glow"></div>
+    <div class="scanline"></div>
+
+    <div class="shell">
+
+        <!-- HEADER -->
+        <header class="header">
+            <div class="header-left">
+                <div class="logo-hex">
+                    <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <polygon points="24,2 44,13 44,35 24,46 4,35 4,13" stroke="#00e5ff" stroke-width="1.5" fill="none"/>
+                        <polygon points="24,9 38,17 38,31 24,39 10,31 10,17" stroke="#00e5ff" stroke-width="0.5" fill="none" opacity="0.4"/>
+                        <text x="24" y="30" text-anchor="middle" font-family="Share Tech Mono" font-size="13" fill="#00e5ff">PG</text>
+                    </svg>
+                </div>
+                <div>
+                    <h1 class="logo-name">PhishGuard</h1>
+                    <span class="logo-sub">Email Threat Intelligence Platform</span>
+                </div>
+            </div>
+            <div class="header-right">
+                <div class="status-pill">
+                    <span class="status-dot"></span>
+                    <span class="mono">ML ENGINE ONLINE</span>
+                </div>
+                <div class="model-badge mono">RF + GB + LR ENSEMBLE</div>
+            </div>
+        </header>
+
+        <!-- STATS BAR -->
+        <div class="stats-bar">
+            <div class="stat-item">
+                <span class="stat-val mono">97.62%</span>
+                <span class="stat-lbl">Accuracy</span>
+            </div>
+            <div class="stat-sep"></div>
+            <div class="stat-item">
+                <span class="stat-val mono">0.9972</span>
+                <span class="stat-lbl">ROC-AUC</span>
+            </div>
+            <div class="stat-sep"></div>
+            <div class="stat-item">
+                <span class="stat-val mono">0.9778</span>
+                <span class="stat-lbl">F1 Score</span>
+            </div>
+            <div class="stat-sep"></div>
+            <div class="stat-item">
+                <span class="stat-val mono">56,388</span>
+                <span class="stat-lbl">Training Samples</span>
+            </div>
+            <div class="stat-sep"></div>
+            <div class="stat-item">
+                <span class="stat-val mono">8,013</span>
+                <span class="stat-lbl">Total Features</span>
+            </div>
+        </div>
+
+        <!-- MAIN GRID -->
+        <main class="main-grid">
+
+            <!-- LEFT: Input Panel -->
+            <section class="panel panel-input">
+                <div class="panel-header">
+                    <span class="panel-tag mono">// INPUT</span>
+                    <h2 class="panel-title">Analyze Email</h2>
+                    <!-- Tab switcher -->
+                    <div class="input-tabs">
+                        <button class="tab-btn tab-active" data-tab="manual" onclick="switchTab('manual')">
+                            <span class="mono">⌨ MANUAL ENTRY</span>
+                        </button>
+                        <button class="tab-btn" data-tab="eml" onclick="switchTab('eml')">
+                            <span class="mono">📎 UPLOAD .EML</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- TAB 1: Manual Entry -->
+                <div id="tab-manual" class="tab-content">
+                <form id="predictForm" novalidate>
+                    <div class="field-group">
+                        <label for="subject" class="field-label mono">SUBJECT LINE <span class="req">*</span></label>
+                        <input type="text" id="subject" name="subject"
+                               placeholder="Enter email subject…" required class="field-input">
+                    </div>
+
+                    <div class="field-group">
+                        <label for="body" class="field-label mono">EMAIL BODY <span class="req">*</span></label>
+                        <textarea id="body" name="body"
+                                  placeholder="Paste the full email body here…"
+                                  rows="7" class="field-input field-textarea" required></textarea>
+                        <div class="field-meta mono" id="bodyMeta">0 words · 0 chars</div>
+                    </div>
+
+                    <div class="field-row">
+                        <div class="field-group">
+                            <label for="from_email" class="field-label mono">SENDER ADDRESS</label>
+                            <input type="text" id="from_email" name="from_email"
+                                   placeholder="sender@domain.com" class="field-input">
+                        </div>
+                        <div class="field-group">
+                            <label for="url_count" class="field-label mono">URL COUNT</label>
+                            <input type="number" id="url_count" name="url_count"
+                                   value="0" min="0" class="field-input field-number">
+                        </div>
+                    </div>
+
+                    <div class="toggle-row">
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="has_ip_url">
+                            <span class="toggle-track"></span>
+                            <span class="toggle-label">
+                                <span class="toggle-icon">⚠</span>
+                                IP-based URL
+                                <span class="toggle-tip">e.g. http://192.168.x.x/login</span>
+                            </span>
+                        </label>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="html_flag">
+                            <span class="toggle-track"></span>
+                            <span class="toggle-label">
+                                <span class="toggle-icon">◈</span>
+                                HTML Formatted
+                                <span class="toggle-tip">Contains &lt;html&gt; tags</span>
+                            </span>
+                        </label>
+                    </div>
+
+                    <!-- Live signal preview -->
+                    <div class="signal-preview">
+                        <span class="signal-title mono">⬡ PRE-SCAN SIGNALS</span>
+                        <div class="signals-wrap" id="signalsList">
+                            <span class="signal-empty mono">Start typing to detect signals…</span>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn-scan" id="submitBtn">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                            <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/><path d="M11 8v6M8 11h6"/>
+                        </svg>
+                        <span id="submitText">SCAN EMAIL</span>
+                    </button>
+                </form>
+                </div>
+
+                <!-- TAB 2: EML Upload -->
+                <div id="tab-eml" class="tab-content" style="display:none;">
+                    <form id="emlForm" enctype="multipart/form-data" novalidate>
+                        <label for="emlFile" class="eml-dropzone" id="emlDropZone">
+                            <svg class="eml-icon" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M24 4v24M12 20l12 12 12-12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M8 44h32" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                            </svg>
+                            <p class="eml-title mono">DROP .EML FILE HERE</p>
+                            <p class="eml-subtitle">or click to select</p>
+                        </label>
+                        <input type="file" id="emlFile" accept=".eml" style="display:none;">
+                        <div id="emlProgress" class="eml-progress" style="display:none;">
+                            <span class="mono" id="emlFileName">—</span>
+                            <div class="progress-bar">
+                                <div class="progress-fill" id="progressFill"></div>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn-scan" id="emlSubmitBtn">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                                <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/><path d="M11 8v6M8 11h6"/>
+                            </svg>
+                            <span id="emlSubmitText">ANALYZE .EML</span>
+                        </button>
+                    </form>
+                </div>
+            </section>
+
+            <!-- RIGHT: Results Panel -->
+            <section class="panel panel-results" id="resultsPanel">
+
+                <!-- Idle -->
+                <div class="idle-state" id="idleState">
+                    <div class="idle-graphic">
+                        <svg viewBox="0 0 120 120" fill="none">
+                            <circle cx="60" cy="60" r="52" stroke="#1a2a3a" stroke-width="1" stroke-dasharray="4 4" class="idle-ring-1"/>
+                            <circle cx="60" cy="60" r="36" stroke="#00e5ff" stroke-width="0.5" opacity="0.3" class="idle-ring-2"/>
+                            <circle cx="60" cy="60" r="20" stroke="#00e5ff" stroke-width="1" opacity="0.5" class="idle-ring-3"/>
+                            <path d="M60 20 L60 100 M20 60 L100 60" stroke="#00e5ff" stroke-width="0.5" opacity="0.2"/>
+                            <circle cx="60" cy="60" r="4" fill="#00e5ff" opacity="0.9"/>
+                            <circle cx="60" cy="60" r="10" stroke="#00e5ff" stroke-width="0.5" fill="none" class="pulse-ring"/>
+                        </svg>
+                    </div>
+                    <p class="idle-label mono">AWAITING TARGET</p>
+                    <p class="idle-sub">Submit an email to begin threat analysis</p>
+                </div>
+
+                <!-- Loading -->
+                <div class="loading-state" id="loadingState" style="display:none">
+                    <div class="scan-animation">
+                        <div class="scan-circle"></div>
+                        <div class="scan-beam"></div>
+                        <div class="scan-dot"></div>
+                    </div>
+                    <div class="loading-log" id="loadingLog"></div>
+                </div>
+
+                <!-- Results -->
+                <div class="results-state" id="resultsState" style="display:none">
+
+                    <div class="verdict-banner" id="verdictBanner">
+                        <div class="verdict-icon" id="verdictIcon"></div>
+                        <div class="verdict-text">
+                            <div class="verdict-label" id="verdictLabel"></div>
+                            <div class="verdict-sub" id="verdictSub"></div>
+                        </div>
+                        <div class="verdict-prob">
+                            <span class="prob-num" id="probNum"></span>
+                            <span class="prob-pct">%</span>
+                            <span class="prob-tag mono">PHISHING PROB</span>
+                        </div>
+                    </div>
+
+                    <!-- Threat meter -->
+                    <div class="threat-meter-wrap">
+                        <div class="threat-labels mono">
+                            <span>SAFE</span><span>THREAT LEVEL</span><span>DANGER</span>
+                        </div>
+                        <div class="threat-track">
+                            <div class="threat-fill" id="threatFill"></div>
+                            <div class="threat-needle" id="threatNeedle"></div>
+                        </div>
+                        <div class="threat-ticks mono">
+                            <span>0%</span><span>25%</span><span>50%</span><span>75%</span><span>100%</span>
+                        </div>
+                    </div>
+
+                    <!-- KPIs -->
+                    <div class="kpi-row">
+                        <div class="kpi-card">
+                            <span class="kpi-label mono">PHISHING PROB</span>
+                            <span class="kpi-val" id="kpiProb">—</span>
+                        </div>
+                        <div class="kpi-card">
+                            <span class="kpi-label mono">CONFIDENCE</span>
+                            <span class="kpi-val" id="kpiConf">—</span>
+                        </div>
+                        <div class="kpi-card kpi-risk-card" id="kpiRiskCard">
+                            <span class="kpi-label mono">RISK LEVEL</span>
+                            <span class="kpi-val" id="kpiRisk">—</span>
+                        </div>
+                    </div>
+
+                    <!-- Threat Intelligence -->
+                    <div class="block-section">
+                        <div class="block-header mono">⬡ THREAT INTELLIGENCE</div>
+                        <div id="insightList" class="insight-list"></div>
+                    </div>
+
+                    <!-- Email Anatomy -->
+                    <div class="block-section">
+                        <div class="block-header mono">⬡ EMAIL ANATOMY</div>
+                        <div id="anatomyGrid" class="anatomy-grid"></div>
+                    </div>
+
+                    <!-- Recommendation -->
+                    <div class="block-section">
+                        <div class="block-header mono">⬡ RECOMMENDED ACTION</div>
+                        <div id="recBody" class="rec-body"></div>
+                    </div>
+
+                    <button class="btn-reset" onclick="resetForm()">↺ ANALYZE ANOTHER EMAIL</button>
+                </div>
+
+            </section>
+        </main>
+
+        <footer class="footer">
+            <span class="mono">PhishGuard v2.0</span>
+            <span class="footer-sep">|</span>
+            <span class="mono">Soft Voting Ensemble · RF + GB + LR</span>
+            <span class="footer-sep">|</span>
+            <span class="mono">56,388 training emails</span>
+            <span class="footer-sep">|</span>
+            <span class="mono">Optimised threshold · 97.62% accuracy</span>
+        </footer>
+    </div>
+
+<script>
+const URGENT_WORDS = ['urgent','verify','confirm','suspend','click','account','password','login','free','winner','prize','congratulations','alert','immediate','action required','expire','limited time','validate'];
+
+function esc(t) {
+    return String(t||'').replace(/[&<>"']/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
+}
+
+/* ── Live body counter + pre-scan signals ── */
+['body','subject','url_count','has_ip_url','html_flag'].forEach(id => {
+    const el = document.getElementById(id);
+    el.addEventListener('input', () => {
+        if (id === 'body') {
+            const v = document.getElementById('body').value;
+            const w = v.trim() ? v.trim().split(/\s+/).length : 0;
+            document.getElementById('bodyMeta').textContent = `${w.toLocaleString()} words · ${v.length.toLocaleString()} chars`;
+        }
+        updateSignals();
+    });
+    el.addEventListener('change', updateSignals);
+});
+
+function updateSignals() {
+    const subject = document.getElementById('subject').value.toLowerCase();
+    const body    = document.getElementById('body').value.toLowerCase();
+    const combined = subject + ' ' + body;
+    const urls   = parseInt(document.getElementById('url_count').value) || 0;
+    const hasIp  = document.getElementById('has_ip_url').checked;
+    const hasHtml = document.getElementById('html_flag').checked;
+    const signals = [];
+
+    const found = URGENT_WORDS.filter(w => combined.includes(w));
+    if (found.length >= 3) signals.push({t:'crit', m:`Urgency keywords ×${found.length}: ${found.slice(0,3).join(', ')}`});
+    else if (found.length) signals.push({t:'warn', m:`Urgency language: ${found.join(', ')}`});
+
+    const excls = (combined.match(/!/g)||[]).length;
+    if (excls >= 5) signals.push({t:'warn', m:`Exclamation abuse (${excls} found)`});
+
+    const dollars = (combined.match(/\$/g)||[]).length;
+    if (dollars >= 2) signals.push({t:'warn', m:`Monetary lures (${dollars} $ signs)`});
+
+    const sub = document.getElementById('subject').value;
+    if (sub.length > 4) {
+        const caps = (sub.match(/[A-Z]/g)||[]).length / sub.length;
+        if (caps > 0.5) signals.push({t:'crit', m:`ALL-CAPS subject (${Math.round(caps*100)}%)`});
+    }
+    if (urls >= 3) signals.push({t:'warn', m:`High URL density (${urls} URLs)`});
+    if (hasIp)    signals.push({t:'crit', m:'IP-based URL — classic phishing indicator'});
+    if (hasHtml)  signals.push({t:'info', m:'HTML email — can hide malicious redirects'});
+
+    const el = document.getElementById('signalsList');
+    el.innerHTML = signals.length
+        ? signals.map(s=>`<span class="chip chip-${s.t} mono">${s.t==='crit'?'⬥':s.t==='warn'?'▲':'◆'} ${esc(s.m)}</span>`).join('')
+        : '<span class="signal-empty mono">No pre-scan signals detected…</span>';
+}
+
+/* ── Loading log ── */
+const LOGS = [
+    'Parsing email metadata…',
+    'Extracting TF-IDF features (8,013 dims)…',
+    'Computing structural signals…',
+    'Running Random Forest (200 trees)…',
+    'Running Gradient Boosting (150 estimators)…',
+    'Calibrating Logistic Regression…',
+    'Aggregating ensemble votes…',
+    'Applying optimised decision threshold…',
+    'Generating threat intelligence report…',
+];
+let logTimer;
+function startLog() {
+    const el = document.getElementById('loadingLog');
+    el.innerHTML = '';
+    let i = 0;
+    logTimer = setInterval(() => {
+        if (i >= LOGS.length) return;
+        const line = document.createElement('div');
+        line.className = 'log-line mono';
+        line.innerHTML = `<span class="log-arrow">&gt;</span> ${LOGS[i]}`;
+        el.appendChild(line);
+        el.scrollTop = el.scrollHeight;
+        i++;
+    }, 240);
+}
+function stopLog() { clearInterval(logTimer); }
+
+/* ── Manual form submit → POST /analyze ── */
+document.getElementById('predictForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const btn = document.getElementById('submitBtn');
+    btn.disabled = true;
+    btn.classList.add('scanning');
+    document.getElementById('submitText').textContent = 'SCANNING…';
+
+    document.getElementById('idleState').style.display    = 'none';
+    document.getElementById('resultsState').style.display = 'none';
+    document.getElementById('loadingState').style.display = 'flex';
+    startLog();
+
+    const fd = {
+        subject:    document.getElementById('subject').value,
+        body:       document.getElementById('body').value,
+        from_email: document.getElementById('from_email').value || undefined,
+        url_count:  parseInt(document.getElementById('url_count').value) || 0,
+        has_ip_url: document.getElementById('has_ip_url').checked ? 1 : 0,
+        html_flag:  document.getElementById('html_flag').checked  ? 1 : 0,
+    };
+
+    try {
+        const [res] = await Promise.all([
+            fetch('/analyze', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(fd)
+            }),
+            new Promise(r => setTimeout(r, 2000))
+        ]);
+
+        const raw = await res.json();
+        if (!res.ok) throw new Error(raw.error || 'Server error');
+
+        // /analyze returns { prediction: { label, phishing_probability, confidence, risk_level, threshold } }
+        stopLog();
+        document.getElementById('loadingState').style.display = 'none';
+        displayResults(raw, fd);
+
+    } catch(err) {
+        stopLog();
+        document.getElementById('loadingState').style.display = 'none';
+        showError(err.message);
+    } finally {
+        btn.disabled = false;
+        btn.classList.remove('scanning');
+        document.getElementById('submitText').textContent = 'SCAN EMAIL';
+    }
+});
+
+/* ── Results renderer ── */
+function displayResults(data, fd) {
+    const pred    = data.prediction;
+    const isPhish = pred.label === 'phishing';
+    const prob    = pred.phishing_probability;
+    const conf    = pred.confidence;
+    const risk    = pred.risk_level;
+    const pct     = Math.round(prob * 100);
+
+    /* Verdict banner */
+    const banner = document.getElementById('verdictBanner');
+    banner.className = 'verdict-banner ' + (isPhish ? 'verdict-phish' : 'verdict-safe');
+    document.getElementById('verdictIcon').innerHTML = isPhish
+        ? `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="32" height="32"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>`
+        : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="32" height="32"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg>`;
+    document.getElementById('verdictLabel').textContent = isPhish ? 'PHISHING DETECTED' : 'LEGITIMATE EMAIL';
+    document.getElementById('verdictSub').textContent   = isPhish
+        ? 'This email exhibits strong phishing characteristics'
+        : 'No significant threat patterns detected';
+    document.getElementById('probNum').textContent = pct;
+
+    /* Threat meter */
+    setTimeout(() => {
+        document.getElementById('threatFill').style.width    = pct + '%';
+        document.getElementById('threatFill').className      = 'threat-fill fill-' + risk;
+        document.getElementById('threatNeedle').style.left   = `calc(${pct}% - 1px)`;
+    }, 100);
+
+    /* KPIs */
+    document.getElementById('kpiProb').textContent = (prob * 100).toFixed(1) + '%';
+    document.getElementById('kpiConf').textContent = (conf * 100).toFixed(1) + '%';
+    document.getElementById('kpiRisk').textContent = risk.toUpperCase();
+    document.getElementById('kpiRiskCard').className = 'kpi-card kpi-risk-card risk-' + risk;
+
+    /* Threat intelligence insights */
+    const bodyText = fd.body || '';
+    const subText  = fd.subject || '';
+    const combined = (subText + ' ' + bodyText).toLowerCase();
+    const insights = buildInsights(fd, pred, combined);
+    document.getElementById('insightList').innerHTML = insights.length
+        ? insights.map(i => `
+            <div class="insight-item insight-${i.sev}">
+                <span class="insight-bullet"></span>
+                <div class="insight-content">
+                    <span class="insight-title mono">${esc(i.title)}</span>
+                    <span class="insight-desc">${esc(i.desc)}</span>
+                </div>
+                <span class="insight-badge mono">${i.sev.toUpperCase()}</span>
+            </div>`).join('')
+        : '<div class="no-insight mono">No explicit threat signals found in email inputs.</div>';
+
+    /* Email anatomy */
+    const urgentFound = URGENT_WORDS.filter(w => combined.includes(w));
+    const rows = [
+        {k:'SUBJECT',     v: subText || '—',           flag: URGENT_WORDS.some(w => subText.toLowerCase().includes(w))},
+        {k:'FROM',        v: fd.from_email || '—',     flag: isSenderRisky(fd.from_email)},
+        {k:'WORD COUNT',  v: bodyText.trim() ? bodyText.trim().split(/\s+/).length.toLocaleString() : '0', flag: false},
+        {k:'CHAR COUNT',  v: bodyText.length.toLocaleString(), flag: false},
+        {k:'URL COUNT',   v: fd.url_count,              flag: fd.url_count >= 3},
+        {k:'IP-BASED URL',v: fd.has_ip_url ? 'YES':'NO', flag: fd.has_ip_url === 1},
+        {k:'HTML FORMAT', v: fd.html_flag ? 'YES':'NO',   flag: false},
+        {k:'URGENT WORDS',v: urgentFound.length ? urgentFound.slice(0,4).join(', ') : 'None', flag: urgentFound.length >= 2},
+        {k:'EXCL MARKS',  v: (combined.match(/!/g)||[]).length,  flag: (combined.match(/!/g)||[]).length >= 5},
+        {k:'$ SIGNS',     v: (combined.match(/\$/g)||[]).length, flag: (combined.match(/\$/g)||[]).length >= 2},
+    ];
+    document.getElementById('anatomyGrid').innerHTML = rows.map(r =>
+        `<div class="anatomy-row ${r.flag ? 'row-flagged' : ''}">
+            <span class="anat-key mono">${esc(r.k)}</span>
+            <span class="anat-val">${esc(String(r.v))}${r.flag ? ' <span class="flag-mark">⚑</span>' : ''}</span>
+        </div>`
+    ).join('');
+
+    /* Recommendation */
+    document.getElementById('recBody').innerHTML = buildRec(isPhish, risk, prob);
+
+    const rs = document.getElementById('resultsState');
+    rs.style.display = 'block';
+    rs.scrollIntoView({behavior: 'smooth', block: 'start'});
+}
+
+function buildInsights(fd, pred, combined) {
+    const isPhish = pred.label === 'phishing';
+    const items   = [];
+    const found   = URGENT_WORDS.filter(w => combined.includes(w));
+
+    if (found.length >= 3)
+        items.push({sev:'critical', title:'Urgency Manipulation', desc:`${found.length} high-pressure keywords detected (${found.slice(0,4).join(', ')}). Phishers manufacture urgency to short-circuit rational decision-making and force impulsive actions.`});
+    else if (found.length >= 1)
+        items.push({sev:'warning', title:'Urgency Language Present', desc:`Found: "${found.join('", "')}". Moderate social engineering pressure detected. Verify the sender through an independent channel.`});
+
+    if (fd.has_ip_url)
+        items.push({sev:'critical', title:'IP-Based URL Detected', desc:'Legitimate organizations virtually never embed raw IP addresses in links. This technique bypasses domain-name-based filtering and is a hallmark of phishing infrastructure.'});
+
+    const excls = (combined.match(/!/g)||[]).length;
+    if (excls >= 5)
+        items.push({sev:'warning', title:'Punctuation Abuse', desc:`${excls} exclamation marks found. Heavy punctuation is a social engineering tactic to simulate excitement or alarm, lowering the recipient's critical evaluation threshold.`});
+
+    const dollars = (combined.match(/\$/g)||[]).length;
+    if (dollars >= 2)
+        items.push({sev:'warning', title:'Monetary Lures', desc:`${dollars} dollar signs detected. Financial incentives and prize claims are primary phishing hooks used to exploit greed and lower victim vigilance.`});
+
+    const sub = fd.subject || '';
+    if (sub.length > 4) {
+        const caps = (sub.match(/[A-Z]/g)||[]).length / sub.length;
+        if (caps > 0.5)
+            items.push({sev:'warning', title:'Aggressive Subject Casing', desc:`${Math.round(caps*100)}% uppercase in subject. Excessive capitalisation mimics urgency and alarm, a manipulation pattern designed to compel immediate action.`});
+    }
+
+    if (fd.url_count >= 5)
+        items.push({sev:'warning', title:'High URL Density', desc:`${fd.url_count} URLs embedded. Phishing emails often chain multiple redirects to obscure the final malicious destination and evade URL-based blocklists.`});
+
+    if (fd.html_flag)
+        items.push({sev:'info', title:'HTML Email Formatting', desc:'HTML emails can display legitimate-looking anchor text while hiding malicious destinations. They may also embed tracking pixels, hidden form fields, or JavaScript-based redirects.'});
+
+    if (isPhish && items.length === 0)
+        items.push({sev:'warning', title:'Subtle Phishing Detected', desc:'The ensemble model detected phishing patterns through learned textual and semantic signals not visible through keyword matching alone. Trust the model score and treat this email with caution.'});
+
+    if (!isPhish && pred.phishing_probability > 0.3)
+        items.push({sev:'info', title:'Elevated Borderline Score', desc:`Phishing probability was ${(pred.phishing_probability*100).toFixed(1)}% — above the typical baseline for clean emails. Verify sender identity before responding or clicking any links.`});
+
+    if (isPhish && pred.phishing_probability > 0.9)
+        items.push({sev:'critical', title:'High-Confidence Threat', desc:`The model is ${(pred.confidence*100).toFixed(1)}% confident this is phishing. All ensemble members agree. Treat this as a confirmed attack and escalate immediately.`});
+
+    return items;
+}
+
+function isSenderRisky(email) {
+    if (!email) return false;
+    return /no.?reply|noreply/i.test(email) || /\d{4,}/.test((email.split('@')[1]||''));
+}
+
+function buildRec(isPhish, risk, prob) {
+    if (isPhish && risk === 'high') return `
+        <div class="rec-alert rec-danger"><strong>DO NOT interact with this email.</strong> Report as phishing, delete immediately, and alert your security team. Do not click links, download attachments, or reply.</div>
+        <ul class="rec-steps"><li>Mark as phishing in your email client</li><li>Do not forward to colleagues</li><li>Report the sender domain to your IT/security department</li><li>If you clicked any link, change passwords immediately and run a malware scan</li><li>Enable MFA on all sensitive accounts as a precaution</li></ul>`;
+    if (isPhish && risk === 'medium') return `
+        <div class="rec-alert rec-warn"><strong>Treat with strong suspicion.</strong> The model flagged this email. Verify sender identity through a separate, trusted channel before taking any action.</div>
+        <ul class="rec-steps"><li>Do not click embedded links — navigate to sites manually</li><li>Contact the purported sender via phone or a known email address</li><li>Check email headers for domain spoofing indicators</li><li>Forward to your IT team for analysis</li></ul>`;
+    if (!isPhish && risk === 'low') return `
+        <div class="rec-alert rec-safe"><strong>Email appears legitimate.</strong> No significant threat indicators were detected. Proceed normally while maintaining standard email security hygiene.</div>
+        <ul class="rec-steps"><li>Verify unexpected requests or attachments with the sender</li><li>Be cautious with attachments from unfamiliar senders even in legitimate emails</li><li>Keep your email client and antivirus software updated</li></ul>`;
+    return `
+        <div class="rec-alert rec-warn"><strong>Exercise caution.</strong> The analysis is borderline. Apply standard email security hygiene and verify the sender independently.</div>
+        <ul class="rec-steps"><li>Verify sender identity before responding</li><li>Avoid clicking links — navigate directly to official websites</li><li>Contact your security team if in doubt</li></ul>`;
+}
+
+function showError(msg) {
+    document.getElementById('resultsState').style.display = 'block';
+    document.getElementById('resultsState').innerHTML = `
+        <div class="error-panel">
+            <div class="error-icon mono">⚠</div>
+            <div class="error-title mono">SCAN FAILED</div>
+            <div class="error-msg">${esc(msg)}</div>
+            <button class="btn-reset" onclick="resetForm()">↺ TRY AGAIN</button>
+        </div>`;
+}
+
+let _origResults;
+window.addEventListener('DOMContentLoaded', () => {
+    _origResults = document.getElementById('resultsState').innerHTML;
+    updateSignals();
+    initEmlUpload();
+});
+
+/* ── Tab switching ── */
+function switchTab(tab) {
+    ['manual','eml'].forEach(t => {
+        document.getElementById(`tab-${t}`).style.display = t === tab ? 'block' : 'none';
+        document.querySelector(`[data-tab="${t}"]`).classList.toggle('tab-active', t === tab);
+    });
+}
+
+/* ── EML upload ── */
+let selectedEmlFile   = null;
+let emlProgressInterval = null;
+
+function initEmlUpload() {
+    const zone  = document.getElementById('emlDropZone');
+    const input = document.getElementById('emlFile');
+    const form  = document.getElementById('emlForm');
+
+    input.addEventListener('change', (e) => {
+        if (e.target.files && e.target.files[0]) handleEmlFile(e.target.files[0]);
+    });
+
+    ['dragenter','dragover'].forEach(ev => {
+        zone.addEventListener(ev, (e) => {
+            e.preventDefault(); e.stopPropagation();
+            zone.style.borderColor       = '#00e5ff';
+            zone.style.backgroundColor   = 'rgba(0,229,255,0.05)';
+        });
+    });
+
+    ['dragleave','drop'].forEach(ev => {
+        zone.addEventListener(ev, (e) => {
+            e.preventDefault(); e.stopPropagation();
+            zone.style.borderColor     = 'rgba(0,229,255,0.2)';
+            zone.style.backgroundColor = 'transparent';
+        });
+    });
+
+    zone.addEventListener('drop', (e) => {
+        const files = e.dataTransfer.files;
+        if (files && files[0]) {
+            if (files[0].name.toLowerCase().endsWith('.eml')) handleEmlFile(files[0]);
+            else alert(`Invalid file type: ${files[0].name}\n\nPlease drop a .eml file`);
+        }
+    });
+
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        if (!selectedEmlFile) { alert('Please select a .eml file first'); return; }
+
+        const btn = document.getElementById('emlSubmitBtn');
+        btn.disabled = true;
+        btn.classList.add('scanning');
+        document.getElementById('emlSubmitText').textContent = 'ANALYZING…';
+
+        document.getElementById('idleState').style.display    = 'none';
+        document.getElementById('resultsState').style.display = 'none';
+        document.getElementById('loadingState').style.display = 'flex';
+        startLog();
+
+        const formData = new FormData();
+        formData.append('file', selectedEmlFile);
+
+        try {
+            const controller = new AbortController();
+            const timeoutId  = setTimeout(() => controller.abort(), 30000);
+
+            const res = await fetch('/predict_eml', {
+                method: 'POST',
+                body:   formData,
+                signal: controller.signal
+            });
+            clearTimeout(timeoutId);
+
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.error || `Server error (${res.status})`);
+            if (!data.extracted || !data.prediction) throw new Error('Server returned invalid response structure.');
+
+            stopLog();
+            document.getElementById('loadingState').style.display = 'none';
+            displayEmlResults(data);
+
+        } catch(err) {
+            stopLog();
+            document.getElementById('loadingState').style.display = 'none';
+            showError(err.name === 'AbortError' ? 'Request timeout (30s)' : `EML Analysis Error: ${err.message}`);
+        } finally {
+            btn.disabled = false;
+            btn.classList.remove('scanning');
+            document.getElementById('emlSubmitText').textContent = 'ANALYZE .EML';
+        }
+    });
+}
+
+function handleEmlFile(file) {
+    selectedEmlFile = file;
+    document.getElementById('emlDropZone').style.display  = 'none';
+    document.getElementById('emlProgress').style.display  = 'block';
+    document.getElementById('emlFileName').textContent    = `✓ ${file.name} — Ready to analyze`;
+
+    if (emlProgressInterval) clearInterval(emlProgressInterval);
+    const fill = document.getElementById('progressFill');
+    let width = 0;
+    emlProgressInterval = setInterval(() => {
+        width += Math.random() * 25;
+        if (width >= 100) {
+            width = 100; fill.style.width = '100%';
+            clearInterval(emlProgressInterval); emlProgressInterval = null;
+        } else {
+            fill.style.width = width + '%';
+        }
+    }, 100);
+    document.getElementById('emlSubmitBtn').scrollIntoView({behavior:'smooth', block:'nearest'});
+}
+
+function displayEmlResults(data) {
+    const ext = data.extracted;
+    // Build a pseudo-fd so displayResults can render anatomy correctly
+    const fd = {
+        subject:    ext.subject || '—',
+        body:       '(extracted from .eml)',
+        from_email: ext.from    || '—',
+        url_count:  ext.url_count  || 0,
+        has_ip_url: ext.has_ip_url ? 1 : 0,
+        html_flag:  ext.html_flag  ? 1 : 0,
+    };
+    displayResults(data, fd);
+}
+
+function resetForm() {
+    selectedEmlFile = null;
+    if (emlProgressInterval) clearInterval(emlProgressInterval);
+
+    document.getElementById('predictForm').reset();
+    document.getElementById('emlForm').reset();
+    document.getElementById('emlFile').value      = '';
+    document.getElementById('emlProgress').style.display  = 'none';
+    document.getElementById('emlDropZone').style.display  = 'block';
+    document.getElementById('bodyMeta').textContent       = '0 words · 0 chars';
+    document.getElementById('signalsList').innerHTML      = '<span class="signal-empty mono">Start typing to detect signals…</span>';
+    document.getElementById('loadingState').style.display = 'none';
+
+    const rs = document.getElementById('resultsState');
+    rs.style.display = 'none';
+    rs.innerHTML     = _origResults;
+
+    document.getElementById('idleState').style.display = 'flex';
+    updateSignals();
+}
+</script>
+</body>
+</html>

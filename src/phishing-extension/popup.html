@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      width: 300px;
+      padding: 20px;
+      font-family: 'Segoe UI', sans-serif;
+      background: #f8f9fa;
+    }
+    h3 {
+      font-size: 16px;
+      color: #202124;
+      margin-bottom: 14px;
+    }
+    button {
+      width: 100%;
+      padding: 10px;
+      background: #1a73e8;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 500;
+    }
+    button:hover { background: #1557b0; }
+    button:disabled { background: #aaa; cursor: not-allowed; }
+    #result {
+      margin-top: 14px;
+      padding: 12px 14px;
+      border-radius: 8px;
+      display: none;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+    .phishing { background: #fce8e6; color: #c5221f; border: 1px solid #f5c6c4; }
+    .safe     { background: #e6f4ea; color: #137333; border: 1px solid #b7dfbf; }
+    .error    { background: #fff3e0; color: #e65100; border: 1px solid #ffcc80; }
+    .confidence { font-size: 12px; margin-top: 4px; opacity: 0.8; }
+  </style>
+</head>
+<body>
+  <h3>🎣 Phishing Detector</h3>
+  <button id="analyze">Analyze Current Email</button>
+  <div id="result"></div>
+  <script src="popup.js"></script>
+</body>
+</html>
