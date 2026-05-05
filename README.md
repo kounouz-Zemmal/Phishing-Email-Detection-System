@@ -143,8 +143,7 @@ The model was trained on a curated collection of real-world phishing and legitim
 | Input features | 10 columns + 1 binary label |
 
 **Download the dataset (Google Drive):**  
-[`final_dataset2.csv` →](https://drive.google.com/file/d/16RtANqgI4E9dV22oBTQgq9mt_jGvsH2p/view?usp=sharing)
-
+ The raw dataset is available in a google drive and this is the link : https://drive.google.com/file/d/16RtANqgI4E9dV22oBTQgq9mt_jGvsH2p/view?usp=sharing
 Place the downloaded file at `data/final_dataset2.csv` before running the notebook.
 
 ---
