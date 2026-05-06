@@ -4,7 +4,7 @@
   "version": "1.0",
   "description": "Detects phishing emails using ML",
   "permissions": ["activeTab", "scripting"],
-  "host_permissions": ["https://mail.google.com/*", "http://127.0.0.1:5004/*"],
+  "host_permissions": ["https://mail.google.com/*", "https://phishing-email-detection-system.onrender.com/"],
   "action": {
     "default_popup": "popup.html"
   },
