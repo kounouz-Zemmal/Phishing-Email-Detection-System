@@ -219,28 +219,42 @@ body {
 
 /* ── EML Upload Area ───────────────────────────────────────────────────── */
 .eml-dropzone {
-    border: 2px dashed rgba(0,229,255,0.2);
-    border-radius: 8px;
-    padding: 40px 20px;
+    border: 2px dashed rgba(0,229,255,0.25);
+    border-radius: 10px;
+    padding: 28px 18px;
+    min-height: 190px;
     text-align: center;
     cursor: pointer;
-    transition: all 0.3s;
-    background: transparent;
+    transition: border-color 0.25s, background 0.25s, box-shadow 0.25s, transform 0.2s;
+    background:
+        radial-gradient(60% 80% at 50% 0%, rgba(0,229,255,0.08), transparent 70%),
+        linear-gradient(180deg, rgba(8,20,30,0.6), rgba(6,13,20,0.2));
     margin-bottom: 20px;
+    display: grid;
+    place-items: center;
+    gap: 8px;
 }
 .eml-dropzone:hover {
-    border-color: rgba(0,229,255,0.4);
-    background: rgba(0,229,255,0.02);
+    border-color: rgba(0,229,255,0.5);
+    background:
+        radial-gradient(60% 80% at 50% 0%, rgba(0,229,255,0.12), transparent 70%),
+        linear-gradient(180deg, rgba(10,24,36,0.7), rgba(6,13,20,0.25));
+    box-shadow: 0 0 18px rgba(0,229,255,0.18);
+    transform: translateY(-1px);
+}
+.eml-dropzone:focus-within {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(0,229,255,0.12);
 }
 
 .eml-icon {
-    width: 48px; height: 48px; margin: 0 auto 12px;
+    width: 46px; height: 46px;
     color: var(--accent);
-    opacity: 0.6;
+    opacity: 0.75;
 }
 .eml-title {
-    font-size: 0.85rem; color: var(--text);
-    margin-bottom: 4px;
+    font-size: 0.82rem; color: var(--text);
+    letter-spacing: 0.08em; text-transform: uppercase;
 }
 .eml-subtitle {
     font-size: 0.7rem; color: var(--text-dim);
@@ -696,6 +710,10 @@ body {
 ::-webkit-scrollbar-thumb:hover { background: var(--accent2); }
 
 /* ── Responsive ────────────────────────────────────────────────────────── */
+@media (max-width: 1100px) {
+    .main-grid { grid-template-columns: 360px 1fr; }
+}
+
 @media (max-width: 900px) {
     .main-grid { grid-template-columns: 1fr; }
     .panel-input { border-right: none; border-bottom: 1px solid var(--border2); }
@@ -704,6 +722,8 @@ body {
     .stat-sep { display: none; }
     .field-row { grid-template-columns: 1fr; }
     .kpi-row { grid-template-columns: 1fr; }
+    .verdict-banner { flex-direction: column; align-items: flex-start; }
+    .verdict-prob { text-align: left; }
 }
 
 @media (max-width: 560px) {
@@ -711,4 +731,8 @@ body {
     .header, .stats-bar, .panel { padding: 16px; }
     .logo-name { font-size: 1.3rem; }
     .header-right { gap: 8px; }
+    .btn-scan { font-size: 0.78rem; }
+    .tab-btn { font-size: 0.64rem; padding: 9px 10px; }
+    .eml-dropzone { padding: 22px 14px; min-height: 160px; }
+    .eml-title { font-size: 0.78rem; }
 }
