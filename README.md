@@ -1,7 +1,7 @@
 # PhishGuard : ML-Based Phishing Email Detection System
 
 > **97.62% accuracy · ROC-AUC 0.9972 · F1 Score 0.9778**  
-> A full-stack phishing detection system powered by a soft-voting ML ensemble, served through a Flask REST API and integrated directly into Gmail via a Chrome extension.
+> A full-stack phishing detection system powered by a soft-voting ML ensemble, deployed at https://phishing-email-detection-system.onrender.com/ and integrated directly into Gmail via a Chrome extension.
 
 ---
 
@@ -18,7 +18,7 @@
 - [Getting Started](#getting-started)
   - [Prerequisites](#prerequisites)
   - [Installation](#installation)
-  - [Running the API](#running-the-api)
+  - [Live Deployment](#live-deployment)
   - [Loading the Chrome Extension](#loading-the-chrome-extension)
   - [Using the Web Dashboard](#using-the-web-dashboard)
 - [API Reference](#api-reference)
@@ -46,11 +46,11 @@ The system was trained on **70,986 real-world emails** (53% phishing, 47% legiti
 4. The popup instantly shows the verdict, phishing probability, and risk level.
 
 ### Web Dashboard
-Navigate to `http://127.0.0.1:5004` while the API is running. Paste any email subject and body, configure URL and IP-URL flags manually, and get a full threat breakdown with a visual meter and recommended action.
+Navigate to `https://phishing-email-detection-system.onrender.com/`. Paste any email subject and body, configure URL and IP-URL flags manually, and get a full threat breakdown with a visual meter and recommended action.
 
 ### cURL
 ```bash
-curl -X POST http://127.0.0.1:5004/analyze \
+curl -X POST https://phishing-email-detection-system.onrender.com/analyze \
   -H "Content-Type: application/json" \
   -d '{
     "subject": "URGENT verify your account",
@@ -78,9 +78,9 @@ curl -X POST http://127.0.0.1:5004/analyze \
 - `replyto_mismatch` — flags Business Email Compromise (BEC) patterns
 
 **Deployment**
-- Flask REST API on port 5004
+- Hosted Flask REST API on Render
 - Chrome Extension (Manifest V3) with Gmail DOM integration
-- Standalone web dashboard for manual analysis and `.eml` file uploads
+- Hosted web dashboard for manual analysis and `.eml` file uploads
 
 ---
 
@@ -94,7 +94,7 @@ curl -X POST http://127.0.0.1:5004/analyze \
 │   │  Chrome Extension  │       │      Web Dashboard       │    │
 │   │  (Manifest V3)     │       │  (HTML + CSS + Vanilla   │    │
 │   │                    │       │        JS)               │    │
-│   │  content.js        │       │  http://127.0.0.1:5004   │    │
+│   │  content.js        │       │  https://phishing-email-detection-system.onrender.com/ │    │
 │   │  (Gmail DOM scraper│       │                          │    │
 │   │  → popup.js)       │       │                          │    │
 │   └─────────┬──────────┘       └────────────┬─────────────┘    │
@@ -102,7 +102,7 @@ curl -X POST http://127.0.0.1:5004/analyze \
 └─────────────┼────────────────────────────────┼─────────────────┘
               │                                │
 ┌─────────────▼────────────────────────────────▼─────────────────┐
-│                      FLASK REST API (port 5004)                 │
+│                      FLASK REST API (Render)                    │
 │                                                                 │
 │   GET  /              → Serves web dashboard                    │
 │   POST /analyze       → JSON email fields → prediction          │
@@ -235,6 +235,7 @@ phishing-detector/
 ### Installation
 
 ```bash
+# Optional (local development or retraining):
 # 1. Clone the repository
 git clone https://github.com/your-username/phishing-detector.git
 cd phishing-detector
@@ -247,21 +248,14 @@ pip install -r src/api/requirements.txt
 #    Then open and run: notebooks/phishing_detector_final.ipynb
 ```
 
-### Running the API
+### Live Deployment
 
-```bash
-cd src/api
-python app.py
-```
-
-You should see:
-```
-Running on http://127.0.0.1:5004
-```
-
-Keep this terminal open. Closing it stops the API and breaks the Chrome extension.
+The hosted app is available at https://phishing-email-detection-system.onrender.com/.
+Use this base URL for the web dashboard and API endpoints (for example, `POST /analyze`).
 
 ### Loading the Chrome Extension
+
+Because the API is hosted, you can download just the `src/extension/` folder and load it directly in Chrome.
 
 1. Open Chrome and navigate to `chrome://extensions/`
 2. Enable **Developer Mode** (toggle in the top-right corner)
@@ -274,7 +268,7 @@ The popup will display the verdict, phishing probability, confidence score, and 
 
 ### Using the Web Dashboard
 
-Navigate to [http://127.0.0.1:5004](http://127.0.0.1:5004) while the API is running.
+Navigate to [https://phishing-email-detection-system.onrender.com/](https://phishing-email-detection-system.onrender.com/).
 
 The dashboard lets you enter an email subject and body manually, configure URL count and IP-URL flags, and run a full scan. Results include a visual threat meter, a signal breakdown, and a recommended action. You can also upload a raw `.eml` file directly.
 
@@ -337,8 +331,8 @@ Serves the web dashboard.
 |---|---|
 | `phishing_model.pkl` | Uses Python's `pickle` format — **never load from untrusted sources**, as it can execute arbitrary code |
 | `threshold.pkl` | Access-control this file; lowering the threshold could let phishing emails through |
-| Flask server | Should be placed behind Gunicorn/uWSGI and served over HTTPS for any production use |
-| CORS | The extension whitelists `localhost:5004`; all other origins should be blocked |
+| Flask server | Hosted on Render behind HTTPS; for self-hosting, use Gunicorn/uWSGI behind HTTPS |
+| CORS | The extension should whitelist `phishing-email-detection-system.onrender.com`; block other origins |
 | Client-supplied fields | `url_count` and `has_ip_url` should be validated server-side — don't trust client values |
 | Rate limiting | The API has no rate limit by default; add one before any public deployment |
 | Extension permissions | `activeTab` + scripting are required; users should be informed before installation |

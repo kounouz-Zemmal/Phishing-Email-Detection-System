@@ -22,7 +22,7 @@ btn.addEventListener('click', async () => {
     }
 
     try {
-      const response = await fetch('http://127.0.0.1:5004/analyze', {
+      const response = await fetch('https://phishing-email-detection-system.onrender.com/analyze', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(emailData)
