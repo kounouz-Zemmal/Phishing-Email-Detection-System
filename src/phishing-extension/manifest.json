@@ -5,6 +5,12 @@
   "description": "Detects phishing emails using ML",
   "permissions": ["activeTab", "scripting"],
   "host_permissions": ["https://mail.google.com/*", "https://phishing-email-detection-system.onrender.com/"],
+  "icons": {
+    "16": "icon/icon.png",
+    "32": "icon/icon.png",
+    "48": "icon/icon.png",
+    "128": "icon/icon.png"
+  },
   "action": {
     "default_popup": "popup.html"
   },
